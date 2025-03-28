@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Forecast</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --thirdcolor: rgb(3, 43, 87);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--dark);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        #hero {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 5px 5px 20% 20%;
+        }
+
+
+
+        /* Weather Card */
+        .weather-card {
+            margin-top: -80px;
+            z-index: 10;
+            position: relative;
+        }
+
+        .weather-icon {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .temp-display {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .weather-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .weather-detail i {
+            width: 30px;
+            color: var(--primary);
+        }
+
+        /* Temperature Colors */
+        .temp-cold {
+            color: #4cc9f0;
+        }
+
+        .temp-cool {
+            color: #4895ef;
+        }
+
+        .temp-moderate {
+            color: #4361ee;
+        }
+
+        .temp-warm {
+            color: #f8961e;
+        }
+
+        .temp-hot {
+            color: #f72585;
+        }
+
+        /* Features Section */
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Forecast Cards */
+        .forecast-card {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .forecast-day {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .forecast-icon {
+            font-size: 2rem;
+            margin: 0.5rem 0;
+        }
+
+        .forecast-temp {
+            font-weight: 600;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(-45deg, #4361ee, #4895ef, #4cc9f0, #3f37c9);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Search Input */
+        .search-container {
+            position: relative;
+        }
+
+        .search-input {
+            padding-left: 45px;
+            border-radius: 50px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            #hero {
+                padding: 100px 0 60px;
+            }
+
+            .weather-card {
+                margin-top: -60px;
+            }
+
+            .temp-display {
+                font-size: 3rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(67, 97, 238, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .col-image {
+                display: flex;
+                justify-content: center;
+            }
+
+            .col-image img {
+                width: 100%;
+                /* Adjust the width for better fit */
+                height: auto;
+                /* Maintain aspect ratio */
+            }
+        }
+
+        #heading {
+            font-size: 2.5rem;
+            color: auto;
+
+            padding: 10px 0;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--thirdcolor), rgba(0, 0, 0, 0));
+            color: white;
+            margin-bottom: 2%;
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        #heading-2 {
+            font-size: 2.5rem;
+            color: auto;
+
+            padding: 10px 0;
+            background: linear-gradient(to right, rgba(0, 0, 0, 0), var(--thirdcolor), rgba(0, 0, 0, 0));
+            color: white;
+            margin-bottom: 2%;
+            border-radius: 10px;
+            width: 100%;
+        }
+
+        .weather-details-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .weather-detail {
+            flex: 1 1 calc(50% - 15px);
+            background-color: rgb(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .weather-detail:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .weather-detail i {
+            font-size: 2.5rem;
+            margin-right: 15px;
+            color: #007bff;
+            opacity: 0.8;
+        }
+
+        .weather-detail-text {
+            flex-grow: 1;
+        }
+
+        .weather-detail .text-muted {
+            color: #6c757d;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .weather-detail .fw-bold {
+            color: #343a40;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Color variations for different weather details */
+        .weather-detail:nth-child(1) i {
+            color: #17a2b8;
+        }
+
+        /* Wind - Teal */
+        .weather-detail:nth-child(2) i {
+            color: #28a745;
+        }
+
+        /* Humidity - Green */
+        .weather-detail:nth-child(3) i {
+            color: #dc3545;
+        }
+
+        /* Feels Like - Red */
+        .weather-detail:nth-child(4) i {
+            color: #ffc107;
+        }
+
+        /* Visibility - Yellow */
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .weather-detail {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cloud-sun me-2"></i>Today's Forecast
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#features">Features</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#forecast">Forecast</a>
+                    </li>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="#about">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Accurate weather forecasts for your location</h1>
+                    <p class="lead mb-5">Get real-time weather updates, detailed forecasts, and severe weather alerts to
+                        plan your day with confidence.</p>
+                    <a href="#weather" class="btn btn-light btn-lg px-4 py-2">
+                        <i class="fas fa-map-marker-alt me-2"></i>Check Your Weather
+                    </a>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <img src="weather-image.png" alt="Weather illustration" class="img-fluid floating"
+                        style="max-height: 400px;">
+                </div>
+            </div>
+        </div>
+        <div class="hero-wave"></div>
+    </section>
+    </br></br>
+    <!-- Weather Card -->
+    <section id="weather" class="mb-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="glass-card weather-card p-4 p-md-5">
+                        <div class="search-container mb-4">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" id="city-input" class="form-control form-control-lg search-input"
+                                placeholder="Search for a city...">
+                        </div>
+
+                        <div id="weather-content">
+                            <div class="text-center mb-4">
+                                <div id="weather-icon" class="pulse">
+                                    <i class="fas fa-cloud-sun weather-icon text-primary"></i>
+                                </div>
+
+                                <h2 id="city-name" class="mb-3">New York, US</h2>
+                                <div id="temperature" class="temp-display temp-moderate mb-3">24°C</div>
+                                <p id="weather-condition" class="text-muted mb-4">Partly Cloudy</p>
+                            </div>
+
+                            <div class="row">
+                                <div class="weather-details-container">
+                                    <div class="weather-detail">
+                                        <i class="fas fa-wind"></i>
+                                        <div class="weather-detail-text">
+                                            <div class="text-muted">Wind Speed</div>
+                                            <div class="fw-bold">12 km/h</div>
+                                        </div>
+                                    </div>
+                                    <div class="weather-detail">
+                                        <i class="fas fa-tint"></i>
+                                        <div class="weather-detail-text">
+                                            <div class="text-muted">Humidity</div>
+                                            <div class="fw-bold">65%</div>
+                                        </div>
+                                    </div>
+                                    <div class="weather-detail">
+                                        <i class="fas fa-temperature-low"></i>
+                                        <div class="weather-detail-text">
+                                            <div class="text-muted">Feels Like</div>
+                                            <div class="fw-bold">26°C</div>
+                                        </div>
+                                    </div>
+                                    <div class="weather-detail">
+                                        <i class="fas fa-eye"></i>
+                                        <div class="weather-detail-text">
+                                            <div class="text-muted">Visibility</div>
+                                            <div class="fw-bold">10 km</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="loading" class="d-none">
+                            <div class="spinner"></div>
+                            <p class="text-center mt-2">Loading weather data...</p>
+                        </div>
+
+                        <div id="error-message" class="alert alert-danger mt-3 d-none"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Forecast Section -->
+    <section id="forecast" class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5" id="heading">Temperature Climate Guide</h2>
+            <div class="row">
+                <div class="col-md-2 col-6 mb-4">
+                    <div class="glass-card forecast-card">
+                        <div class="forecast-day">Below 0°C</div>
+                        <i class="fas fa-snowflake forecast-icon text-info"></i>
+                        <div class="forecast-temp">Freezing Cold</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6 mb-4">
+                    <div class="glass-card forecast-card">
+                        <div class="forecast-day">0° to 10°C</div>
+                        <i class="fas fa-temperature-low forecast-icon text-primary"></i>
+                        <div class="forecast-temp">Very Cold</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6 mb-4">
+                    <div class="glass-card forecast-card">
+                        <div class="forecast-day">10° to 20°C</div>
+                        <i class="fas fa-cloud-sun forecast-icon text-warning"></i>
+                        <div class="forecast-temp">Cool/Mild</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6 mb-4">
+                    <div class="glass-card forecast-card">
+                        <div class="forecast-day">20° to 30°C</div>
+                        <i class="fas fa-sun forecast-icon text-danger"></i>
+                        <div class="forecast-temp">Warm/Pleasant</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6 mb-4">
+                    <div class="glass-card forecast-card">
+                        <div class="forecast-day">30° to 40°C</div>
+                        <i class="fas fa-fire forecast-icon text-warning"></i>
+                        <div class="forecast-temp">Hot</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6 mb-4">
+                    <div class="glass-card forecast-card">
+                        <div class="forecast-day">Above 40°C</div>
+                        <i class="fas fa-temperature-high forecast-icon text-danger"></i>
+                        <div class="forecast-temp">Extreme Heat</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5" id="heading-2">Why Choose Today's Forecast?</h2>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card h-100 p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <h4 class="mb-3">Real-time Updates</h4>
+                        <p>Get instant weather updates with our lightning-fast data processing that refreshes every 5
+                            minutes.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card h-100 p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h4 class="mb-3">Hyperlocal Forecasts</h4>
+                        <p>Precise weather predictions for your exact location with our advanced geolocation technology.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="glass-card h-100 p-4">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h4 class="mb-3">Severe Alerts</h4>
+                        <p>Instant notifications for severe weather conditions to keep you and your family safe.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="col-image">
+                        <img src="https://i.ibb.co/JtcSLh6/file-n-WJ3f-SB5kw-Olyt16od-Wot-Fz-Z-2-2.jpg"
+                            alt="About WeatherWise" class="img-fluid"
+                            style="height:50%;width:50%;border-radius:50%;border:7px solid navy;">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <h2 class="mb-4">About K. Phani Kumar Sharma</h2>
+                    <p class="lead mb-4">A dedicated full-stack web developer and Hindu priest.</p>
+                    <p>With expertise in modern web technologies, I specialize in creating efficient and scalable
+                        applications using React, Angular, Django, and Node.js.</p>
+                    <p>My skill set includes frontend and backend development, database management, cloud services, and
+                        AI-powered solutions.</p>
+                    <a href="https://phanikumar-kodukulla.vercel.app/"
+                        class="btn btn-primary mt-3 px-4 py-2">Portfolio</a>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-5" style="background-color:black;color:white;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <h5 class="mb-4">
+                        <i class="fas fa-cloud-sun me-2"></i>Today's Forecast
+                    </h5>
+                    <p>The most accurate and beautiful weather application available today.</p>
+                    <div class="social-icons mt-4">
+                        <a href="https://www.x.com" class="text-white me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="https://www.facebook.com" class="text-white me-3"><i
+                                class="fab fa-facebook fa-lg"></i></a>
+                        <a href="https://www.instagram.com" class="text-white me-3"><i
+                                class="fab fa-instagram fa-lg"></i></a>
+                        <a href="https://www.github.com" class="text-white"><i class="fab fa-github fa-lg"></i></a>
+                    </div>
+
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-md-0">
+                    <h5 class="mb-4">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#home" class="text-white-50">Home</a></li>
+                        <li class="mb-2"><a href="#features" class="text-white-50">Features</a></li>
+                        <li class="mb-2"><a href="#forecast" class="text-white-50">Forecast</a></li>
+                        <li class="mb-2"><a href="#about" class="text-white-50">About</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="mb-4">Be in touch !</h5>
+                    <p class="text-white-50 mb-3">Thanks for visiting :-)</p>
+
+                </div>
+            </div>
+            <hr class="my-4 bg-secondary">
+            <div class="row">
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="small mb-0">&copy; Today's Forecast. All rights reserved. | K.Phani Kumar Sharma.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        // WeatherAPI.com API Key (Keep it Secure)
+        const API_KEY = 'c154542a08334d198bc140847252803';
+        // Weather Icon and Temperature Mapping
+        const weatherConditions = {
+            'Sunny': {
+                icon: 'fa-sun',
+                tempClass: 'temp-warm'
+            },
+            'Clear': {
+                icon: 'fa-moon',
+                tempClass: 'temp-cool'
+            },
+            'Partly cloudy': {
+                icon: 'fa-cloud-sun',
+                tempClass: 'temp-moderate'
+            },
+            'Cloudy': {
+                icon: 'fa-cloud',
+                tempClass: 'temp-moderate'
+            },
+            'Overcast': {
+                icon: 'fa-cloud',
+                tempClass: 'temp-moderate'
+            },
+            'Mist': {
+                icon: 'fa-smog',
+                tempClass: 'temp-cool'
+            },
+            'Fog': {
+                icon: 'fa-smog',
+                tempClass: 'temp-cool'
+            },
+            'Patchy rain': {
+                icon: 'fa-cloud-rain',
+                tempClass: 'temp-cool'
+            },
+            'Light rain': {
+                icon: 'fa-cloud-rain',
+                tempClass: 'temp-cool'
+            },
+            'Moderate rain': {
+                icon: 'fa-cloud-showers-heavy',
+                tempClass: 'temp-cool'
+            },
+            'Heavy rain': {
+                icon: 'fa-cloud-showers-heavy',
+                tempClass: 'temp-cool'
+            },
+            'Thunderstorm': {
+                icon: 'fa-bolt',
+                tempClass: 'temp-hot'
+            },
+            'Snow': {
+                icon: 'fa-snowflake',
+                tempClass: 'temp-cold'
+            },
+            'Sleet': {
+                icon: 'fa-cloud-meatball',
+                tempClass: 'temp-cold'
+            },
+            'Hail': {
+                icon: 'fa-cloud-meatball',
+                tempClass: 'temp-cold'
+            }
+        };
+        // Fetch Weather Data using WeatherAPI.com
+        function fetchWeatherData(city) {
+            // Show loading state
+            $('#weather-content').addClass('d-none');
+            $('#loading').removeClass('d-none');
+            $('#error-message').addClass('d-none');
+            $.ajax({
+                url: `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${city}`,
+                method: 'GET',
+                success: function(data) {
+                    if (!data || !data.current || !data.location) {
+                        throw new Error('Invalid weather data received');
+                    }
+                    // Extract necessary data from WeatherAPI response
+                    const temperature = Math.round(data.current.temp_c); // Current temperature
+                    const condition = data.current.condition.text; // Weather condition
+                    const weatherInfo = getWeatherInfo(condition); // Get icon and class
+                    // Update UI Elements
+                    $('#city-name').text(`${data.location.name}, ${data.location.country}`);
+                    $('#weather-condition').text(condition);
+                    // Update Temperature
+                    $('#temperature')
+                        .text(`${temperature}°C`)
+                        .removeClass('temp-cold temp-cool temp-moderate temp-warm temp-hot')
+                        .addClass(weatherInfo.tempClass);
+                    // Update Weather Icon
+                    $('#weather-icon i')
+                        .removeClass()
+                        .addClass(`fas ${weatherInfo.icon} weather-icon text-primary`);
+                    // Update Other Details
+                    $('#wind-speed').text(`${data.current.wind_kph} km/h`);
+                    $('#humidity').text(`${data.current.humidity}%`);
+                    $('#feels-like').text(`${Math.round(data.current.feelslike_c)}°C`);
+                    $('#visibility').text(`${data.current.vis_km} km`);
+                    // Hide loading and show content
+                    $('#loading').addClass('d-none');
+                    $('#weather-content').removeClass('d-none');
+                },
+                error: function(xhr, status, error) {
+                    $('#error-message').text(error || 'Unable to fetch weather data').removeClass('d-none');
+                    $('#loading').addClass('d-none');
+                }
+            });
+        }
+        // Get appropriate weather info based on condition
+        function getWeatherInfo(condition) {
+            for (const key in weatherConditions) {
+                if (condition.toLowerCase().includes(key.toLowerCase())) {
+                    return weatherConditions[key];
+                }
+            }
+            return {
+                icon: 'fa-cloud',
+                tempClass: 'temp-moderate'
+            };
+        }
+        // Search Button Click Event
+        $('#city-input').on('keypress', function(e) {
+            if (e.which === 13) {
+                const city = $(this).val().trim();
+                if (city) {
+                    fetchWeatherData(city);
+                }
+            }
+        });
+        // Default City on Load
+        $(document).ready(function() {
+            fetchWeatherData('Andhra Pradesh');
+            // Smooth scrolling for anchor links
+            $('a[href*="#"]').on('click', function(e) {
+                e.preventDefault();
+                $('html, body').animate({
+                        scrollTop: $($(this).attr('href')).offset().top - 70,
+                    },
+                    500,
+                    'linear'
+                );
+            });
+            // Navbar background change on scroll
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').addClass('navbar-scrolled');
+                } else {
+                    $('.navbar').removeClass('navbar-scrolled');
+                }
+            });
+        });
+    </script>
+
+    <!-- Additional Styles -->
+    <style>
+        /* Navbar scroll effect */
+        .navbar-scrolled {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Temperature background colors for cards */
+        .temp-bg-cold {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+        }
+
+        .temp-bg-moderate {
+            background: linear-gradient(135deg, #4895ef, #4361ee);
+        }
+
+        .temp-bg-warm {
+            background: linear-gradient(135deg, #f8961e, #f3722c);
+        }
+
+        .temp-bg-hot {
+            background: linear-gradient(135deg, #f72585, #b5179e);
+        }
+    </style>
+</body>
+
+</html>
