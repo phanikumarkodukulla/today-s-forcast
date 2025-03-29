@@ -705,8 +705,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 
     <script>
-        // WeatherAPI.com API Key (Keep it Secure)
-        const API_KEY = 'c154542a08334d198bc140847252803';
+        // Function to get API key from file
+        function getApiKey(filePath) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', filePath, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            resolve(xhr.responseText.trim());
+                        } else {
+                            reject('Error reading API key: ' + xhr.status);
+                        }
+                    }
+                };
+                xhr.send();
+            });
+        }
+        // Declare API_KEY variable without initializing it
+        let API_KEY;
         // Weather Icon and Temperature Mapping
         const weatherConditions = {
             'Sunny': {
@@ -772,6 +789,11 @@
         };
         // Fetch Weather Data using WeatherAPI.com
         function fetchWeatherData(city) {
+            // Make sure API_KEY is available
+            if (!API_KEY) {
+                $('#error-message').text('API key is not available. Please reload the page.').removeClass('d-none');
+                return;
+            }
             // Show loading state
             $('#weather-content').addClass('d-none');
             $('#loading').removeClass('d-none');
@@ -800,10 +822,11 @@
                         .removeClass()
                         .addClass(`fas ${weatherInfo.icon} weather-icon text-primary`);
                     // Update Other Details
-                    $('#wind-speed').text(`${data.current.wind_kph} km/h`);
-                    $('#humidity').text(`${data.current.humidity}%`);
-                    $('#feels-like').text(`${Math.round(data.current.feelslike_c)}°C`);
-                    $('#visibility').text(`${data.current.vis_km} km`);
+                    $('.weather-detail:nth-child(1) .fw-bold').text(`${data.current.wind_kph} km/h`);
+                    $('.weather-detail:nth-child(2) .fw-bold').text(`${data.current.humidity}%`);
+                    $('.weather-detail:nth-child(3) .fw-bold').text(
+                        `${Math.round(data.current.feelslike_c)}°C`);
+                    $('.weather-detail:nth-child(4) .fw-bold').text(`${data.current.vis_km} km`);
                     // Hide loading and show content
                     $('#loading').addClass('d-none');
                     $('#weather-content').removeClass('d-none');
@@ -826,18 +849,30 @@
                 tempClass: 'temp-moderate'
             };
         }
-        // Search Button Click Event
-        $('#city-input').on('keypress', function(e) {
-            if (e.which === 13) {
-                const city = $(this).val().trim();
-                if (city) {
-                    fetchWeatherData(city);
-                }
-            }
-        });
-        // Default City on Load
+        // Document Ready Function
         $(document).ready(function() {
-            fetchWeatherData('Andhra Pradesh');
+            // Try to load API key from file
+            getApiKey('key.txt')
+                .then(apiKey => {
+                    API_KEY = apiKey;
+                    // Initialize weather for default city
+                    fetchWeatherData('Andhra Pradesh');
+                })
+                .catch(error => {
+                    console.error(error);
+                    // Show error message if API key can't be loaded
+                    $('#error-message').text('Could not load API key. Please check the key.txt file.')
+                        .removeClass('d-none');
+                });
+            // Search input event
+            $('#city-input').on('keypress', function(e) {
+                if (e.which === 13) {
+                    const city = $(this).val().trim();
+                    if (city) {
+                        fetchWeatherData(city);
+                    }
+                }
+            });
             // Smooth scrolling for anchor links
             $('a[href*="#"]').on('click', function(e) {
                 e.preventDefault();
